@@ -147,41 +147,14 @@
         .agent-bg {
             background: linear-gradient(135deg, #ffffff 0%, #e0f7fa 50%, var(--primary-color) 100%);
         }
-        * {
-          margin: 0;
-          padding: 0;
-          box-sizing: border-box;
-        }
-    
-        html,
-        body,
-        #renderContent {
-          width: 100%;
-          height: 100%;
-        }
-    
-        #renderContent {
-          display: flex;
-          flex-direction: column;
-          overflow: auto;
-          background: #f3f5f9;
-        }
-    
-        iframe {
-          border: 0;
-          display: block;
-          flex: 1;
-        }
-    
-        .bubbleContentHeader {
-          padding: 16px 16px 20px 16px;
-          display: flex;
-          align-items: center;
-          flex-direction: row-reverse;
-        }
     </style>
 </head>
 <body class="text-gray-800">
+        <!-- 以下代码请放入前端html文件的body内 -->
+    <script src="https://agi-dev-platform-web.cdn.bcebos.com/ai_apaas/embed/output/embedLiteSDK.js?responseExpires=0&t=1764167056998"></script>
+    <script>
+       new EmbedLiteSDK({appId: 'a4510f40-83df-4b8b-85b3-84e363859dfb', code: 'embedSefLMJChSdS3XrFdr159'});
+    </script>
 
     <nav class="glass-nav fixed top-0 w-full z-50 transition-all duration-300">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -570,38 +543,5 @@
         }
 
     </script>
-  <div id="renderContent">
-    <div class="bubbleContentHeader"></div>
-    <iframe allow="camera *;microphone *;autoplay *;" frameborder="0"></iframe>
-  </div>
-  <script>
-
-
-    // 只需要在下面更换appId和code即可
-    // ----------------------------------------------------------------------------------
-    const APP_ID = 'a4510f40-83df-4b8b-85b3-84e363859dfb'
-    const APP_CODE = 'embedSefLMJChSdS3XrFdr159'
-    // ----------------------------------------------------------------------------------
-
-
-    !(function () {
-
-      const isMobile = () => {
-        const userAgent = navigator.userAgent || navigator.vendor || window.opera;
-        return /android|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent.toLowerCase());
-      }
-
-
-      const type = isMobile() ? '' : 'full'
-
-
-      const renderUrl = `https://wx.baeapps.com/api/ai_apaas/v1/web_embed/html?type=${type}&app_id=${APP_ID}&code=${APP_CODE}`
-
-      document.querySelector('iframe').src = renderUrl
-
-    })()
-
-
-  </script>
 </body>
 </html>
