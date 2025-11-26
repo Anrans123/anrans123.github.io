@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>冯俊驰 | 个人主页</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* 自定义颜色变量 */
+        :root {
+            --primary-color: #39c5bb;
+        }
+
+        /* 全局字体设置 */
+        body {
+            font-family: "Helvetica Neue", Helvetica, Arial, "PingFang SC", "Hiragino Sans GB", "Heiti SC", "Microsoft YaHei", "WenQuanYi Micro Hei", sans-serif;
+            scroll-behavior: smooth;
+        }
+
+        /* 磨砂玻璃效果 */
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        /* 导航链接高亮动画 */
+        .nav-link {
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        .nav-link:hover {
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -4px;
+            left: 0;
+            background-color: var(--primary-color);
+            transition: width 0.3s ease;
+        }
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        /* 内容上浮动画类 */
+        .fade-up {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+        .fade-up.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* 首页打字机光标 */
+        .cursor {
+            display: inline-block;
+            width: 3px;
+            background-color: white;
+            animation: blink 1s infinite;
+        }
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        /* 大学规划 - 3D 卡片轮播样式 */
+        .carousel-container {
+            perspective: 1000px;
+            height: 500px; /* 固定高度以容纳卡片 */
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+        
+        .plan-card {
+            position: absolute;
+            transition: all 0.5s ease-in-out;
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            width: 90%;
+            max-width: 600px; /* 最大宽度限制 */
+            height: auto;
+            max-height: 80vh;
+            overflow-y: auto;
+            padding: 2rem;
+            opacity: 0;
+            /* 隐藏滚动条但保留滚动功能 */
+            scrollbar-width: none; 
+            -ms-overflow-style: none;
+        }
+        .plan-card::-webkit-scrollbar { 
+            display: none; 
+        }
+
+        /* 卡片状态类 (由JS控制) */
+        .card-active {
+            transform: translateX(0) scale(1);
+            opacity: 1;
+            z-index: 20;
+            box-shadow: 0 20px 50px rgba(57, 197, 187, 0.3); /* 主色调阴影 */
+            border: 1px solid var(--primary-color);
+        }
+        
+        .card-prev {
+            transform: translateX(-110%) scale(0.85); /* 移动端位移更小，桌面端可通过JS调整 */
+            opacity: 0.6;
+            z-index: 10;
+            filter: grayscale(80%);
+            cursor: pointer;
+        }
+        
+        .card-next {
+            transform: translateX(110%) scale(0.85);
+            opacity: 0.6;
+            z-index: 10;
+            filter: grayscale(80%);
+            cursor: pointer;
+        }
+        
+        .card-hidden {
+            transform: scale(0.5);
+            opacity: 0;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* 桌面端调整卡片位移 */
+        @media (min-width: 768px) {
+            .card-prev { transform: translateX(-60%) scale(0.85); }
+            .card-next { transform: translateX(60%) scale(0.85); }
+        }
+
+        /* 智能体背景渐变 */
+        .agent-bg {
+            background: linear-gradient(135deg, #ffffff 0%, #e0f7fa 50%, var(--primary-color) 100%);
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <nav class="glass-nav fixed top-0 w-full z-50 transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex-shrink-0 flex items-center">
+                    <a href="#home" class="text-2xl font-bold text-gray-900 tracking-wider" style="color: var(--primary-color);">
+                        冯俊驰
+                    </a>
+                </div>
+
+                <div class="hidden md:flex space-x-8">
+                    <a href="#home" class="nav-link text-gray-600 px-3 py-2 text-sm font-medium">主页</a>
+                    <a href="#about" class="nav-link text-gray-600 px-3 py-2 text-sm font-medium">关于我</a>
+                    <a href="#plan" class="nav-link text-gray-600 px-3 py-2 text-sm font-medium">大学规划</a>
+                    <a href="#agent" class="nav-link text-gray-600 px-3 py-2 text-sm font-medium">智能体</a>
+                </div>
+
+                <div class="flex items-center md:hidden">
+                    <button id="mobile-menu-btn" class="text-gray-600 hover:text-gray-900 focus:outline-none p-2">
+                        <i class="fas fa-bars text-2xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="mobile-menu" class="md:hidden hidden bg-white border-t border-gray-100 absolute w-full shadow-lg">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <a href="#home" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-[#39c5bb] hover:bg-gray-50">主页</a>
+                <a href="#about" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-[#39c5bb] hover:bg-gray-50">关于我</a>
+                <a href="#plan" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-[#39c5bb] hover:bg-gray-50">大学规划</a>
+                <a href="#agent" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-[#39c5bb] hover:bg-gray-50">智能体</a>
+            </div>
+        </div>
+    </nav>
+
+    <section id="home" class="h-screen bg-black flex justify-center items-center text-white overflow-hidden relative">
+        <div id="welcome-text-container" class="text-center absolute w-full transition-opacity duration-1000">
+            <h1 class="text-4xl md:text-6xl font-mono">
+                <span id="typewriter-text"></span><span class="cursor">&nbsp;</span>
+            </h1>
+        </div>
+        
+        <div id="final-welcome" class="text-center absolute w-full opacity-0 transform scale-50 transition-all duration-1000 ease-out">
+            <h1 class="text-6xl md:text-9xl font-bold tracking-widest" style="text-shadow: 0 0 20px #39c5bb;">
+                欢迎
+            </h1>
+        </div>
+        
+        <div class="absolute bottom-10 animate-bounce">
+            <i class="fas fa-chevron-down text-2xl text-gray-400"></i>
+        </div>
+    </section>
+
+    <section id="about" class="min-h-screen bg-white flex justify-center items-center py-20">
+        <div class="max-w-3xl w-full px-6 fade-up section-content">
+            <div class="mb-8">
+                <h1 class="text-4xl font-bold text-black mb-2 border-l-8 pl-4" style="border-color: var(--primary-color);">冯俊驰</h1>
+                <h3 class="text-xl text-gray-500 pl-6">华中科技大学 软件学院 大一</h3>
+            </div>
+
+            <hr class="border-gray-200 my-8">
+
+            <div class="mb-8 pl-6">
+                <h2 class="text-2xl font-semibold text-black mb-3 flex items-center">
+                    <i class="fas fa-star mr-3" style="color: var(--primary-color);"></i>兴趣爱好
+                </h2>
+                <h3 class="text-lg text-black pl-8">听音乐，打羽毛球，跑步</h3>
+            </div>
+
+            <hr class="border-gray-200 my-8">
+
+            <div class="pl-6">
+                <h2 class="text-2xl font-semibold text-black mb-3 flex items-center">
+                    <i class="fas fa-address-card mr-3" style="color: var(--primary-color);"></i>联系方式
+                </h2>
+                <h3 class="text-lg text-black pl-8 font-mono bg-gray-50 inline-block px-2 py-1 rounded">
+                    QQ邮箱：centrans@qq.com
+                </h3>
+            </div>
+        </div>
+    </section>
+
+    <section id="plan" class="min-h-screen bg-gray-50 flex flex-col justify-center items-center py-20 overflow-hidden relative">
+        <div class="text-center mb-10 fade-up section-content z-30">
+            <h2 class="text-3xl font-bold text-gray-800">大学四年规划</h2>
+            <p class="text-gray-500 mt-2">点击卡片或左右滑动切换阶段</p>
+        </div>
+
+        <div class="carousel-container w-full fade-up section-content z-20">
+            <div class="plan-card" data-index="0">
+                <div class="bg-[#39c5bb] text-white p-4 -m-8 mb-6 rounded-t-lg">
+                    <h3 class="text-2xl font-bold">大一：夯实基础</h3>
+                </div>
+                <div class="space-y-4 text-left">
+                    <div>
+                        <h4 class="font-bold text-[#39c5bb]"><i class="fas fa-book mr-2"></i>学业目标</h4>
+                        <p class="text-gray-600 text-sm pl-6">打好微积分、线性代数、C语言程序设计等课程根基。</p>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-[#39c5bb]"><i class="fas fa-tools mr-2"></i>技能目标</h4>
+                        <ul class="list-disc list-inside text-gray-600 text-sm pl-6">
+                            <li>熟练掌握Python/Java一门主力语言。</li>
+                            <li>学习HTML, CSS, JavaScript前端基础。</li>
+                            <li>通过英语四级考试。</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-[#39c5bb]"><i class="fas fa-running mr-2"></i>实践目标</h4>
+                        <ul class="list-disc list-inside text-gray-600 text-sm pl-6">
+                            <li>加入1个技术类社团。</li>
+                            <li>开始使用GitHub管理代码。</li>
+                        </ul>
+                    </div>
+                    <div class="bg-gray-100 p-3 rounded">
+                        <span class="font-bold text-gray-700 text-sm">产出物：</span>
+                        <span class="text-gray-600 text-xs">课程项目、第一篇技术博客、GitHub主页。</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="plan-card" data-index="1">
+                <div class="bg-[#39c5bb] text-white p-4 -m-8 mb-6 rounded-t-lg">
+                    <h3 class="text-2xl font-bold">大二：深化技能</h3>
+                </div>
+                <div class="space-y-4 text-left">
+                    <div>
+                        <h4 class="font-bold text-[#39c5bb]"><i class="fas fa-layer-group mr-2"></i>学业目标</h4>
+                        <p class="text-gray-600 text-sm pl-6">深入学习数据结构、算法、计算机网络、操作系统等核心课程。</p>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-[#39c5bb]"><i class="fas fa-code mr-2"></i>技能目标</h4>
+                        <ul class="list-disc list-inside text-gray-600 text-sm pl-6">
+                            <li>学习一个前端框架（如Vue/React）或后端框架。</li>
+                            <li>了解数据库（MySQL）。</li>
+                            <li>通过六级考试。</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-[#39c5bb]"><i class="fas fa-project-diagram mr-2"></i>实践目标</h4>
+                        <ul class="list-disc list-inside text-gray-600 text-sm pl-6">
+                            <li>参与1个开源项目或独立开发个人项目。</li>
+                            <li>暑期寻找第一份技术实习。</li>
+                        </ul>
+                    </div>
+                    <div class="bg-gray-100 p-3 rounded">
+                        <span class="font-bold text-gray-700 text-sm">产出物：</span>
+                        <span class="text-gray-600 text-xs">个人项目、实习经历、更丰富的技术博客。</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="plan-card" data-index="2">
+                <div class="bg-[#39c5bb] text-white p-4 -m-8 mb-6 rounded-t-lg">
+                    <h3 class="text-2xl font-bold">大三：确定方向</h3>
+                </div>
+                <div class="space-y-4 text-left">
+                    <div>
+                        <h4 class="font-bold text-[#39c5bb]"><i class="fas fa-compass mr-2"></i>学业目标</h4>
+                        <p class="text-gray-600 text-sm pl-6">根据兴趣选择专业方向（Web、AI、数据等），选修高阶课程。</p>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-[#39c5bb]"><i class="fas fa-laptop-code mr-2"></i>技能目标</h4>
+                        <ul class="list-disc list-inside text-gray-600 text-sm pl-6">
+                            <li>掌握至少一个技术栈（如MERN, Spring Cloud）。</li>
+                            <li>学习Linux、Docker等开发运维工具。</li>
+                            <li>准备技术面试。</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-[#39c5bb]"><i class="fas fa-briefcase mr-2"></i>实践目标</h4>
+                        <ul class="list-disc list-inside text-gray-600 text-sm pl-6">
+                            <li>争取含金量高的暑期实习（大厂/成长型公司）。</li>
+                            <li>主导或核心参与一个中型项目。</li>
+                        </ul>
+                    </div>
+                    <div class="bg-gray-100 p-3 rounded">
+                        <span class="font-bold text-gray-700 text-sm">产出物：</span>
+                        <span class="text-gray-600 text-xs">高质量实习、完整项目作品、竞赛奖项。</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="plan-card" data-index="3">
+                <div class="bg-[#39c5bb] text-white p-4 -m-8 mb-6 rounded-t-lg">
+                    <h3 class="text-2xl font-bold">大四：着眼未来</h3>
+                </div>
+                <div class="space-y-4 text-left">
+                    <div>
+                        <h4 class="font-bold text-[#39c5bb]"><i class="fas fa-flag-checkered mr-2"></i>核心目标</h4>
+                        <ul class="list-disc list-inside text-gray-600 text-sm pl-6">
+                            <li>路径A（就业）：全力秋招/春招，完善简历作品集。</li>
+                            <li>路径B（考研/保研）：全力备考。</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-[#39c5bb]"><i class="fas fa-graduation-cap mr-2"></i>技能目标</h4>
+                        <p class="text-gray-600 text-sm pl-6">深入学习某一领域的专家级知识。</p>
+                    </div>
+                    <div class="bg-gray-100 p-3 rounded mt-10">
+                        <span class="font-bold text-gray-700 text-sm">产出物：</span>
+                        <span class="text-gray-600 text-xs text-[#39c5bb] font-bold">工作Offer / 研究生录取通知书</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="flex justify-center space-x-4 mt-8 z-30">
+            <button onclick="moveCarousel(-1)" class="bg-white text-[#39c5bb] rounded-full p-3 shadow-lg hover:bg-gray-50 transition"><i class="fas fa-chevron-left"></i></button>
+            <button onclick="moveCarousel(1)" class="bg-white text-[#39c5bb] rounded-full p-3 shadow-lg hover:bg-gray-50 transition"><i class="fas fa-chevron-right"></i></button>
+        </div>
+    </section>
+
+    <section id="agent" class="min-h-screen agent-bg flex justify-center items-center py-20 relative">
+        <div class="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+            <div class="absolute top-20 left-10 w-32 h-32 bg-white opacity-20 rounded-full blur-xl"></div>
+            <div class="absolute bottom-20 right-10 w-64 h-64 bg-[#39c5bb] opacity-30 rounded-full blur-3xl"></div>
+        </div>
+
+        <div class="max-w-4xl w-full px-4 text-center fade-up section-content z-10">
+            <h2 class="text-4xl font-bold text-gray-800 mb-8">博物馆导览助手</h2>
+            
+            <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-2xl p-8 border border-[#39c5bb]/30 min-h-[400px] flex flex-col justify-center items-center">
+                <div class="mb-6">
+                    <i class="fas fa-landmark text-6xl text-[#39c5bb] animate-pulse"></i>
+                </div>
+                <h3 class="text-xl font-semibold mb-4">智能导览服务已就绪</h3>
+                <p class="text-gray-500 mb-8 max-w-lg">
+                    您的专属博物馆探索伙伴。点击下方按钮，即可跳转至 AppBuilder 智能体，开启详细的文物讲解与导览服务。
+                </p>
+                
+                <a href="https://appbuilder.baidu.com/s/nUBhtQCv" target="_blank" class="inline-flex items-center px-8 py-3 bg-[#39c5bb] text-white rounded-full hover:bg-[#2da9a0] transition shadow-lg text-lg font-medium no-underline">
+                    <span class="mr-2">进入智能体</span>
+                    <i class="fas fa-external-link-alt text-sm"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-gray-900 text-white py-6 text-center">
+        <p>&copy; 2025 冯俊驰. All Rights Reserved.</p>
+    </footer>
+
+    <script>
+        // --- 1. 移动端菜单控制 ---
+        const btn = document.getElementById('mobile-menu-btn');
+        const menu = document.getElementById('mobile-menu');
+        const icon = btn.querySelector('i');
+
+        btn.addEventListener('click', () => {
+            menu.classList.toggle('hidden');
+            if(menu.classList.contains('hidden')){
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
+            } else {
+                icon.classList.remove('fa-bars');
+                icon.classList.add('fa-times');
+            }
+        });
+        
+        // 点击链接后自动收起菜单
+        menu.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                menu.classList.add('hidden');
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
+            });
+        });
+
+        // --- 2. 首页打字机与切换效果 ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const textToType = "Welcome!!!";
+            const typeContainer = document.getElementById('typewriter-text');
+            const welcomeContainer = document.getElementById('welcome-text-container');
+            const finalWelcome = document.getElementById('final-welcome');
+            let charIndex = 0;
+
+            function type() {
+                if (charIndex < textToType.length) {
+                    typeContainer.textContent += textToType.charAt(charIndex);
+                    charIndex++;
+                    setTimeout(type, 150); // 打字速度
+                } else {
+                    // 打字结束，等待后切换
+                    setTimeout(() => {
+                        welcomeContainer.style.opacity = '0';
+                        setTimeout(() => {
+                            welcomeContainer.style.display = 'none';
+                            finalWelcome.style.opacity = '1';
+                            finalWelcome.style.transform = 'scale(1)';
+                        }, 1000);
+                    }, 1000);
+                }
+            }
+
+            // 稍微延迟开始打字
+            setTimeout(type, 500);
+
+            // 初始化轮播
+            updateCarousel();
+        });
+
+        // --- 3. 滚动上浮动画 ---
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.section-content').forEach((el) => {
+            observer.observe(el);
+        });
+
+        // --- 4. 大学规划 3D 轮播逻辑 ---
+        let currentIndex = 0;
+        const cards = document.querySelectorAll('.plan-card');
+        const totalCards = cards.length;
+
+        function updateCarousel() {
+            cards.forEach((card, index) => {
+                // 清除所有状态类
+                card.classList.remove('card-active', 'card-prev', 'card-next', 'card-hidden');
+                
+                // 添加点击事件，点击侧边卡片切换到该卡片
+                card.onclick = function() {
+                    if (index !== currentIndex) {
+                        currentIndex = index;
+                        updateCarousel();
+                    }
+                };
+
+                if (index === currentIndex) {
+                    card.classList.add('card-active');
+                } else if (index === (currentIndex - 1 + totalCards) % totalCards || (currentIndex === 0 && index === totalCards - 1)) {
+                    // 逻辑上的"前一张"（处理循环）- 这里简化处理：直接判断绝对位置
+                    // 为了简单的3D效果，我们只显示当前，前一张，后一张
+                    // 此处逻辑稍微调整为基于距离的判断以支持非循环或有限列表的更好视觉
+                }
+            });
+            // 重新遍历以处理位置关系 (简化版非循环逻辑，适合时间轴)
+            cards.forEach((card, index) => {
+                if (index === currentIndex) {
+                   // Active handled above
+                } else if (index === currentIndex - 1) {
+                    card.classList.add('card-prev');
+                } else if (index === currentIndex + 1) {
+                    card.classList.add('card-next');
+                } else {
+                    card.classList.add('card-hidden');
+                }
+            });
+        }
+
+        function moveCarousel(direction) {
+            const newIndex = currentIndex + direction;
+            if (newIndex >= 0 && newIndex < totalCards) {
+                currentIndex = newIndex;
+                updateCarousel();
+            }
+        }
+        
+        // 支持触摸滑动
+        let touchStartX = 0;
+        let touchEndX = 0;
+        const carouselContainer = document.querySelector('.carousel-container');
+
+        carouselContainer.addEventListener('touchstart', e => {
+            touchStartX = e.changedTouches[0].screenX;
+        });
+
+        carouselContainer.addEventListener('touchend', e => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        });
+
+        function handleSwipe() {
+            if (touchEndX < touchStartX - 50) moveCarousel(1); // 向左滑，下个
+            if (touchEndX > touchStartX + 50) moveCarousel(-1); // 向右滑，上个
+        }
+
+    </script>
+</body>
+</html>
